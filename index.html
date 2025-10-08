@@ -13,9 +13,61 @@
       margin: 0;
       padding: 0;
     }
-    #reader { width: 90%; max-width: 400px; margin: 20px auto; }
-    #result { margin-top: 20px; }
-    iframe { display: none; } /* iframe tersembunyi */
+
+    /* === Header dengan background transparan === */
+    .header {
+      position: relative;
+      text-align: center;
+      padding: 20px;
+      background: rgba(255, 255, 255, 0.85);
+      overflow: hidden;
+    }
+
+    .header::before {
+      content: "";
+      background-image: url("https://raw.githubusercontent.com/edoadityasaputra/barcode-scanner/main/BG.jpg");
+      background-size: cover;
+      background-position: center;
+      opacity: 0.25; /* transparansi background */
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: -1;
+    }
+
+    /* === Gaya teks header === */
+    .header h2 {
+      margin: 5px 0;
+      font-family: Arial, sans-serif;
+      color: #222;
+    }
+
+    .header h3 {
+      margin: 0;
+      color: #555;
+      font-family: Arial, sans-serif;
+    }
+
+    /* === Area scanner === */
+    #reader {
+      width: 90%;
+      max-width: 400px;
+      margin: 20px auto;
+      background-color: #87CEFA; /* biru muda */
+      border-radius: 12px;
+      padding: 10px;
+    }
+
+    #result {
+      margin-top: 20px;
+    }
+
+    iframe {
+      display: none; /* iframe tersembunyi */
+    }
+
     button {
       padding: 10px 20px;
       margin-top: 15px;
@@ -26,23 +78,30 @@
       font-size: 16px;
       cursor: pointer;
     }
-    button:hover { background-color: #45a049; }
+
+    button:hover {
+      background-color: #45a049;
+    }
   </style>
 </head>
+
 <body>
-    <!-- Bagian Header Logo & Judul -->
-  <div style="text-align: center; margin-top: 20px;">
+  <!-- === Bagian Header Logo & Judul === -->
+  <div class="header">
     <img src="https://edoadityasaputra.github.io/barcode-scanner/MI-Khoirul-Huda_C3.png" 
          alt="Logo MI Khoirul Huda" 
          style="width: 120px; height: auto; border-radius: 10px; margin-bottom: 10px;">
-    <h2 style="margin: 5px 0; font-family: Arial;">Scan Presensi Informatika</h2>
-    <h3 style="margin: 0; color: #555; font-family: Arial;">MI Khoirul Huda Bedahan</h3>
+    <h2>Scan Presensi Informatika</h2>
+    <h3>MI Khoirul Huda Bedahan</h3>
   </div>
 
+  <!-- === Area Scanner === -->
   <div id="reader"></div>
   <div id="result"></div>
-  <iframe id="formFrame" name="formFrame"></iframe> <!-- iframe tersembunyi -->
+  <iframe id="formFrame" name="formFrame"></iframe>
   <button id="rescanBtn" style="display:none;">Scan Ulang</button>
+</body>
+</html>
 
   <script>
     const html5QrCode = new Html5Qrcode("reader");
