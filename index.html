@@ -6,11 +6,24 @@
   <title>Presensi Barcode Scanner</title>
   <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
   <style>
-    body { font-family: Arial, sans-serif; text-align: center; background-color: #f9f9f9; }
-    #reader { width: 90%; margin: 20px auto; }
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      background-color: #f9f9f9;
+      margin: 0;
+      padding: 0;
+    }
+    #reader { width: 90%; max-width: 400px; margin: 20px auto; }
+    #result { margin-top: 20px; }
     button {
-      padding: 10px 20px; margin-top: 20px; border: none; border-radius: 10px;
-      background-color: #4CAF50; color: white; font-size: 16px; cursor: pointer;
+      padding: 10px 20px;
+      margin-top: 15px;
+      border: none;
+      border-radius: 10px;
+      background-color: #4CAF50;
+      color: white;
+      font-size: 16px;
+      cursor: pointer;
     }
     button:hover { background-color: #45a049; }
   </style>
@@ -40,22 +53,31 @@
       try {
         const url = new URL(decodedText);
         const params = new URLSearchParams(url.search);
-        const firstKey = [...params.keys()][0]; // ambil parameter pertama
-        const nama = decodeURIComponent(params.get(firstKey) || "Siswa");
+
+        // Ambil semua key, lalu lewati 'usp'
+        const keys = [...params.keys()].filter(k => k !== "usp");
+        const namaKey = keys[0]; // Ambil parameter nama siswa
+        const nama = decodeURIComponent(params.get(namaKey) || "Siswa");
         const linkForm = decodedText;
 
+        // Tampilkan pesan konfirmasi
         resultDiv.innerHTML = `
           <h3>Halo, ${nama}!</h3>
           <p>Silakan kirim presensimu.</p>
           <button id="kirimBtn">Kirim</button>
         `;
 
+        // Saat tombol kirim diklik
         document.getElementById("kirimBtn").onclick = () => {
-          window.open(linkForm, "_blank"); // buka link Google Form
+          window.open(linkForm, "_blank"); // buka form
+          resultDiv.innerHTML = "<p>Mengirim data... tunggu sebentar.</p>";
+
+          // Setelah 4 detik, kembali ke mode scan
           setTimeout(() => {
             resultDiv.innerHTML = "";
-            rescanBtn.style.display = "block";
-          }, 4000); // kembali ke scan setelah 4 detik
+            rescanBtn.style.display = "none";
+            startScan();
+          }, 4000);
         };
 
       } catch (e) {
