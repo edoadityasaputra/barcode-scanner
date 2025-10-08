@@ -25,42 +25,47 @@
 
     <script>
       let lastResult = "";
-      const html5QrCode = new Html5Qrcode("reader");
+      const scanner = new Html5Qrcode("reader");
 
-      function startScanner() {
-        document.getElementById("result").innerText = "";
-        document.getElementById("buttons").style.display = "none";
-        html5QrCode
-          .start(
+      async function startScanner() {
+        try {
+          document.getElementById("result").innerText = "";
+          document.getElementById("buttons").style.display = "none";
+
+          await scanner.start(
             { facingMode: "environment" },
             { fps: 10, qrbox: 250 },
-            onScanSuccess
-          )
-          .catch((err) => {
-            console.error("Gagal memulai kamera:", err);
-            document.getElementById("result").innerText = "Gagal mengakses kamera!";
-          });
+            (decodedText) => onScanSuccess(decodedText)
+          );
+        } catch (err) {
+          console.error("Kamera gagal dimulai:", err);
+          document.getElementById("result").innerText = "Gagal mengakses kamera!";
+        }
       }
 
-      function onScanSuccess(decodedText) {
-        html5QrCode.stop();
+      async function onScanSuccess(decodedText) {
+        // Hindari pemicu ganda
+        if (decodedText === lastResult) return;
+
         lastResult = decodedText;
+        await scanner.stop();
+
+        // Tampilkan hasil dan tombol
         document.getElementById("result").innerText = "Barcode terbaca!";
         document.getElementById("buttons").style.display = "block";
       }
 
-      document.getElementById("btnKirim").addEventListener("click", function() {
+      document.getElementById("btnKirim").addEventListener("click", () => {
         if (lastResult) {
           window.location.href = lastResult;
         }
       });
 
-      document.getElementById("btnBatal").addEventListener("click", function() {
-        // Kembali ke mode scan
-        startScanner();
+      document.getElementById("btnBatal").addEventListener("click", async () => {
+        lastResult = "";
+        await startScanner();
       });
 
-      // Mulai pertama kali
       startScanner();
     </script>
   </body>
