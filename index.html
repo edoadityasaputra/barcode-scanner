@@ -69,14 +69,20 @@
         const nama = decodeURIComponent(params.get(namaKey) || "Siswa");
         const linkForm = decodedText;
 
-        resultDiv.innerHTML = `
-          <h3>Halo, ${nama}!</h3>
-          <p>Silakan kirim presensimu.</p>
-          <button id="kirimBtn">Kirim</button>
-        `;
+  resultDiv.innerHTML = `
+  <h3>Halo, ${nama}!</h3>
+  <p>Silakan kirim presensimu.</p>
+  <button id="kirimBtn">Kirim</button>
+  <button id="batalBtn" style="background-color:#f44336; margin-left:10px;">Batal</button>
+`;
 
-        document.getElementById("kirimBtn").onclick = () => {
-          resultDiv.innerHTML = "<p>Mengirim data...</p>";
+      document.getElementById("batalBtn").onclick = () => {
+      resultDiv.innerHTML = "<p>Scan dibatalkan.</p>";
+      setTimeout(() => {
+      resultDiv.innerHTML = "";
+      startScan();
+                        }, 1000);
+                                                          };
 
           // form dikirim ke iframe tersembunyi (tanpa tab baru)
           formFrame.src = linkForm;
