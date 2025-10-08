@@ -2,78 +2,75 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8" />
-  <title>Barcode Scanner</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <script src="https://unpkg.com/html5-qrcode"></script>
+  <title>Presensi Barcode Scanner</title>
+  <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+  <style>
+    body { font-family: Arial, sans-serif; text-align: center; background-color: #f9f9f9; }
+    #reader { width: 90%; margin: 20px auto; }
+    button {
+      padding: 10px 20px; margin-top: 20px; border: none; border-radius: 10px;
+      background-color: #4CAF50; color: white; font-size: 16px; cursor: pointer;
+    }
+    button:hover { background-color: #45a049; }
+  </style>
 </head>
-<body style="text-align:center; font-family:Arial">
-  <h2>📷 Scan Barcode / QR Code</h2>
-  <p>Arahkan kamera ke barcode untuk membuka link setelah dikonfirmasi</p>
-  <div id="reader" style="width:300px; margin:auto;"></div>
-
-  <p id="result" style="font-weight:bold; color:green; margin-top:10px;"></p>
-
-  <div id="buttons" style="margin-top:15px; display:none;">
-    <button id="btnKirim" style="padding:10px 20px; font-size:16px; background-color:#2a9d8f; color:white; border:none; border-radius:8px; cursor:pointer; margin-right:10px;">
-      Kirim
-    </button>
-    <button id="btnBatal" style="padding:10px 20px; font-size:16px; background-color:#e76f51; color:white; border:none; border-radius:8px; cursor:pointer;">
-      Batal
-    </button>
-  </div>
-
-  <!-- iframe untuk kirim form diam-diam -->
-  <iframe id="hiddenFrame" style="display:none;"></iframe>
+<body>
+  <h2>Presensi Barcode Scanner</h2>
+  <div id="reader"></div>
+  <div id="result"></div>
+  <button id="rescanBtn" style="display:none;">Scan Ulang</button>
 
   <script>
-    let lastResult = "";
-    const scanner = new Html5Qrcode("reader");
+    const html5QrCode = new Html5Qrcode("reader");
+    const rescanBtn = document.getElementById("rescanBtn");
+    const resultDiv = document.getElementById("result");
 
-    async function startScanner() {
+    function startScan() {
+      html5QrCode.start(
+        { facingMode: "environment" },
+        { fps: 10, qrbox: 250 },
+        onScanSuccess
+      ).catch(err => console.error("Gagal memulai kamera:", err));
+    }
+
+    function onScanSuccess(decodedText) {
+      html5QrCode.stop();
+
       try {
-        document.getElementById("result").innerText = "";
-        document.getElementById("buttons").style.display = "none";
-        await scanner.start(
-          { facingMode: "environment" },
-          { fps: 10, qrbox: 250 },
-          (decodedText) => onScanSuccess(decodedText)
-        );
-      } catch (err) {
-        console.error("Kamera gagal dimulai:", err);
-        document.getElementById("result").innerText = "Gagal mengakses kamera!";
+        const url = new URL(decodedText);
+        const params = new URLSearchParams(url.search);
+        const firstKey = [...params.keys()][0]; // ambil parameter pertama
+        const nama = decodeURIComponent(params.get(firstKey) || "Siswa");
+        const linkForm = decodedText;
+
+        resultDiv.innerHTML = `
+          <h3>Halo, ${nama}!</h3>
+          <p>Silakan kirim presensimu.</p>
+          <button id="kirimBtn">Kirim</button>
+        `;
+
+        document.getElementById("kirimBtn").onclick = () => {
+          window.open(linkForm, "_blank"); // buka link Google Form
+          setTimeout(() => {
+            resultDiv.innerHTML = "";
+            rescanBtn.style.display = "block";
+          }, 4000); // kembali ke scan setelah 4 detik
+        };
+
+      } catch (e) {
+        alert("Kode tidak valid atau bukan link Google Form.");
+        startScan();
       }
     }
 
-    async function onScanSuccess(decodedText) {
-      if (decodedText === lastResult) return;
-      lastResult = decodedText;
-      await scanner.stop();
-      document.getElementById("result").innerText = "Barcode terbaca!";
-      document.getElementById("buttons").style.display = "block";
-    }
+    rescanBtn.onclick = () => {
+      rescanBtn.style.display = "none";
+      resultDiv.innerHTML = "";
+      startScan();
+    };
 
-    document.getElementById("btnKirim").addEventListener("click", async () => {
-      if (lastResult) {
-        document.getElementById("result").innerText = "Mengirim data...";
-        document.getElementById("buttons").style.display = "none";
-        const frame = document.getElementById("hiddenFrame");
-        frame.src = lastResult;
-
-        // tunggu 3 detik, lalu kembali ke scanner
-        setTimeout(() => {
-          lastResult = "";
-          document.getElementById("result").innerText = "Selesai! Kembali ke scan.";
-          startScanner();
-        }, 3000);
-      }
-    });
-
-    document.getElementById("btnBatal").addEventListener("click", async () => {
-      lastResult = "";
-      await startScanner();
-    });
-
-    startScanner();
+    startScan();
   </script>
 </body>
 </html>
