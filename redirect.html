@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Memproses Form...</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script>
+      // Ambil parameter link dari URL (misal ?link=https://forms.google.com/...)
+      const params = new URLSearchParams(window.location.search);
+      const target = params.get("link");
+
+      if (target) {
+        // Buka link form di tab baru
+        window.open(target, "_blank");
+
+        // Setelah 8 detik, kembali ke halaman scanner
+        setTimeout(() => {
+          window.location.href = "https://edoadityasaputra.github.io/barcode-scanner/";
+        }, 8000);
+      } else {
+        document.write("<p>Tidak ada link yang diberikan.</p>");
+      }
+    </script>
+  </head>
+  <body style="text-align:center; font-family:Arial">
+    <h3>Sedang membuka form...</h3>
+    <p>Kamu akan kembali ke halaman scanner secara otomatis.</p>
+  </body>
+</html>
