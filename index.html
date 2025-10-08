@@ -58,51 +58,56 @@
       ).catch(err => console.error("Gagal memulai kamera:", err));
     }
 
-    function onScanSuccess(decodedText) {
-      html5QrCode.stop();
+   function onScanSuccess(decodedText) {
+  html5QrCode.stop();
 
-      try {
-        const url = new URL(decodedText);
-        const params = new URLSearchParams(url.search);
-        const keys = [...params.keys()].filter(k => k !== "usp");
-        const namaKey = keys[0];
-        const nama = decodeURIComponent(params.get(namaKey) || "Siswa");
-        const linkForm = decodedText;
+  try {
+    const url = new URL(decodedText);
+    const params = new URLSearchParams(url.search);
+    const keys = [...params.keys()].filter(k => k !== "usp");
+    const namaKey = keys[0];
+    const nama = decodeURIComponent(params.get(namaKey) || "Siswa");
+    const linkForm = decodedText;
 
-  resultDiv.innerHTML = `
-  <h3>Halo, ${nama}!</h3>
-  <p>Silakan kirim presensimu.</p>
-  <button id="kirimBtn">Kirim</button>
-  <button id="batalBtn" style="background-color:#f44336; margin-left:10px;">Batal</button>
-`;
+    resultDiv.innerHTML = `
+      <h3>Halo, ${nama}!</h3>
+      <p>Silakan kirim presensimu.</p>
+      <button id="kirimBtn">Kirim</button>
+      <button id="batalBtn" style="background-color:#f44336; margin-left:10px;">Batal</button>
+    `;
 
-      document.getElementById("batalBtn").onclick = () => {
+    // Tombol Kirim
+    document.getElementById("kirimBtn").onclick = () => {
+      resultDiv.innerHTML = "<p>Mengirim data...</p>";
+
+      // kirim ke form di iframe tersembunyi
+      formFrame.src = linkForm;
+
+      setTimeout(() => {
+        resultDiv.innerHTML = "<p>Presensi terkirim!</p>";
+      }, 1500);
+
+      setTimeout(() => {
+        resultDiv.innerHTML = "";
+        startScan();
+      }, 3000);
+    };
+
+    // Tombol Batal
+    document.getElementById("batalBtn").onclick = () => {
       resultDiv.innerHTML = "<p>Scan dibatalkan.</p>";
       setTimeout(() => {
-      resultDiv.innerHTML = "";
-      startScan();
-                        }, 1000);
-                                                          };
-
-          // form dikirim ke iframe tersembunyi (tanpa tab baru)
-          formFrame.src = linkForm;
-
-          // tunggu beberapa detik, lalu restart scanner
-          setTimeout(() => {
-            resultDiv.innerHTML = "<p>Presensi terkirim!</p>";
-          }, 1500);
-
-          setTimeout(() => {
-            resultDiv.innerHTML = "";
-            startScan();
-          }, 3000);
-        };
-
-      } catch (e) {
-        alert("Kode tidak valid atau bukan link Google Form.");
+        resultDiv.innerHTML = "";
         startScan();
-      }
-    }
+      }, 1000);
+    };
+
+  } catch (e) {
+    alert("Kode tidak valid atau bukan link Google Form.");
+    startScan();
+  }
+}
+
 
     startScan();
   </script>
