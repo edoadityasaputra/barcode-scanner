@@ -22,6 +22,9 @@
     </button>
   </div>
 
+  <!-- iframe untuk kirim form diam-diam -->
+  <iframe id="hiddenFrame" style="display:none;"></iframe>
+
   <script>
     let lastResult = "";
     const scanner = new Html5Qrcode("reader");
@@ -30,7 +33,6 @@
       try {
         document.getElementById("result").innerText = "";
         document.getElementById("buttons").style.display = "none";
-
         await scanner.start(
           { facingMode: "environment" },
           { fps: 10, qrbox: 250 },
@@ -43,21 +45,26 @@
     }
 
     async function onScanSuccess(decodedText) {
-      // Pastikan tidak trig twice
       if (decodedText === lastResult) return;
-
       lastResult = decodedText;
       await scanner.stop();
-
-      // Tampilkan tombol konfirmasi
       document.getElementById("result").innerText = "Barcode terbaca!";
       document.getElementById("buttons").style.display = "block";
     }
 
-    document.getElementById("btnKirim").addEventListener("click", () => {
+    document.getElementById("btnKirim").addEventListener("click", async () => {
       if (lastResult) {
-        // Buka link form hasil scan
-        window.location.href = lastResult;
+        document.getElementById("result").innerText = "Mengirim data...";
+        document.getElementById("buttons").style.display = "none";
+        const frame = document.getElementById("hiddenFrame");
+        frame.src = lastResult;
+
+        // tunggu 3 detik, lalu kembali ke scanner
+        setTimeout(() => {
+          lastResult = "";
+          document.getElementById("result").innerText = "Selesai! Kembali ke scan.";
+          startScanner();
+        }, 3000);
       }
     });
 
@@ -66,7 +73,6 @@
       await startScanner();
     });
 
-    // Mulai scanner pertama kali
     startScanner();
   </script>
 </body>
