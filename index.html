@@ -9,40 +9,19 @@
     <h2>📷 Scan Barcode / QR Code</h2>
     <p>Arahkan kamera ke barcode untuk membuka link otomatis</p>
     <div id="reader" style="width:300px; margin:auto;"></div>
-    <p id="status" style="color:green; font-weight:bold; margin-top:10px;"></p>
 
     <script>
-      const html5QrCode = new Html5Qrcode("reader");
-
-      function startScanner() {
-        document.getElementById("status").innerText = "Scanner aktif...";
-        html5QrCode.start(
-          { facingMode: "environment" },
-          { fps: 10, qrbox: 250 },
-          onScanSuccess
-        );
-      }
-
       function onScanSuccess(decodedText, decodedResult) {
-        // tampilkan info sementara
-        document.getElementById("status").innerText = "Membuka link...";
-
-        // hentikan scanner sementara
-        html5QrCode.stop().then(() => {
-          // buka link di tab baru
-          window.open(decodedText, "_blank");
-
-          // tampilkan pesan dan nyalakan ulang scanner setelah 5 detik
-          document.getElementById("status").innerText =
-            "Menunggu 5 detik untuk scan lagi...";
-          setTimeout(() => {
-            startScanner();
-          }, 5000);
-        });
+        // buka link langsung (bisa link redirect.html)
+        window.location.href = decodedText;
       }
 
-      // mulai scanner pertama kali
-      startScanner();
+      const html5QrCode = new Html5Qrcode("reader");
+      html5QrCode.start(
+        { facingMode: "environment" },
+        { fps: 10, qrbox: 250 },
+        onScanSuccess
+      );
     </script>
   </body>
 </html>
